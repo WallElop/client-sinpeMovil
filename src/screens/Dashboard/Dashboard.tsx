@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from "react";
+import MovementService from "../../services/Movement.service";
+import UserService from "../../services/User.service";
+import MovementCard from "../../components/movement-card/Movement-card";
+import IMovement from "../../model/Movement";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../routes/index";
+import { useNavigation } from "@react-navigation/native";
 import {
   Text,
   StyleSheet,
@@ -7,10 +14,6 @@ import {
   View,
   Alert,
 } from "react-native";
-import MovementService from "../../services/Movement.service";
-import UserService from "../../services/User.service";
-import MovementCard from "../../components/movement-card/Movement-card";
-
 import {
   Container,
   ContentBody,
@@ -27,10 +30,6 @@ import {
   ButtonText,
   Subtitle,
 } from "./styles";
-import IMovement from "../../model/Movement";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../routes/index";
-import { useNavigation } from "@react-navigation/native";
 
 export default function Dashboard({ route }: { route: any }) {
   const user = route.params.user;
@@ -75,8 +74,12 @@ export default function Dashboard({ route }: { route: any }) {
 
   const getMovementDetail = (receiberNumber: String, createdAt: String) => {
     const senderNumber = user.number;
-    console.log(senderNumber , receiberNumber, createdAt);
-    navigation.navigate("MovementDetail", { senderNumber, receiberNumber, createdAt });
+    console.log(senderNumber, receiberNumber, createdAt);
+    navigation.navigate("MovementDetail", {
+      senderNumber,
+      receiberNumber,
+      createdAt,
+    });
   };
 
   const currencyFormat = (num: number) => {
