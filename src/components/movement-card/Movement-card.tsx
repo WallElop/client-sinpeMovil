@@ -1,12 +1,12 @@
 import React from "react";
 import moment from "moment";
-import { Amount, Container, Title, Date, Header } from "./Styles";
+import { Amount, Container, Title, Date, Header } from "./styles";
 import UserService from "../../services/User.service";
 import IUser from "../../model/User";
 
 interface ICardProps {
   numberToFind: string;
-  amount: number;
+  amount: number; 
   createdAt: string;
   onPress: () => void;
 }
