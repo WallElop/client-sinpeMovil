@@ -28,7 +28,6 @@ import {
   Subtitle,
 } from "./styles";
 import IMovement from "../../model/Movement";
-import IUser from "../../model/User";
 
 export default function Dashboard({ route }: { route: any }) {
   const user = route.params.user;
@@ -60,6 +59,7 @@ export default function Dashboard({ route }: { route: any }) {
         let movements = dataResponse.Items;
 
         setData(data.concat(movements));
+
         setIsLoading(false);
       })
       .catch((error) => {
@@ -76,24 +76,15 @@ export default function Dashboard({ route }: { route: any }) {
   };
 
   const renderItem = ({ item }: any) => {
-    const numberToFind =
-      item.senderNumber === user.number
+    // If the movement is from the user, the number to find is the receiver number
+    let numberToFind =
+      item.senderNumber == user.number
         ? item.receiverNumber
         : item.senderNumber;
 
-    // const [otherUser, setOtherUser] = useState<IUser>({} as IUser);
-
-    // UserService.getUser(numberToFind).then((response) => {
-    //   console.log(response.data);
-      
-    //   setOtherUser(response.data);
-    // });
-
-    // // console.log(otherUser);
-
     return (
       <MovementCard
-        receiverNumber={user.number}
+        numberToFind={numberToFind}
         amount={item.amount}
         createdAt={item.createdAt}
         onPress={() => getMovementDetail(item.senderNumber, item.createdAt)}
