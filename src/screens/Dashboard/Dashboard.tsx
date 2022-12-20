@@ -28,6 +28,9 @@ import {
   Subtitle,
 } from "./styles";
 import IMovement from "../../model/Movement";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../routes/index";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Dashboard({ route }: { route: any }) {
   const user = route.params.user;
@@ -38,6 +41,9 @@ export default function Dashboard({ route }: { route: any }) {
   const [lastNumber, setLastNumber] = useState(user.number);
   const [areMoreMovements, setAreMoreMovements] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+
+  type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
+  const navigation: any = useNavigation<routesProps>();
 
   useEffect(() => {
     setIsLoading(true);
@@ -67,8 +73,10 @@ export default function Dashboard({ route }: { route: any }) {
       });
   };
 
-  const getMovementDetail = (number: String, createdAt: String) => {
-    console.log(number, createdAt);
+  const getMovementDetail = (receiberNumber: String, createdAt: String) => {
+    const senderNumber = user.number;
+    console.log(senderNumber , receiberNumber, createdAt);
+    navigation.navigate("MovementDetail", { senderNumber, receiberNumber, createdAt });
   };
 
   const currencyFormat = (num: number) => {
@@ -87,7 +95,7 @@ export default function Dashboard({ route }: { route: any }) {
         numberToFind={numberToFind}
         amount={item.amount}
         createdAt={item.createdAt}
-        onPress={() => getMovementDetail(item.senderNumber, item.createdAt)}
+        onPress={() => getMovementDetail(item.receiverNumber, item.createdAt)}
       />
     );
   };
