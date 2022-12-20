@@ -3,17 +3,21 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Login from "../screens/Login/Login";
 
-const { Navigator, Screen } = createNativeStackNavigator();
+export type AuthStackParamList = {
+  Login: undefined;
+};
 
-export default function AuthRoutes() {
+const { Navigator, Screen } = createNativeStackNavigator<AuthStackParamList>();
+
+export function AuthRoutes() {
   return (
     <Navigator
-        initialRouteName="log"
-        screenOptions={{
-            headerShown: false,
-        }}
+      initialRouteName="Login"
+      screenOptions={{
+        headerShown: false,
+      }}
     >
-        <Screen name="log" component={Login} />
+      <Screen name="Login" component={Login} />
     </Navigator>
   );
 }
