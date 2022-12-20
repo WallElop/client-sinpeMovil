@@ -28,6 +28,9 @@ import {
   Subtitle,
 } from "./styles";
 import IMovement from "../../model/Movement";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../routes/index";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Dashboard({ route }: { route: any }) {
   const user = route.params.user;
@@ -38,6 +41,9 @@ export default function Dashboard({ route }: { route: any }) {
   const [lastNumber, setLastNumber] = useState(user.number);
   const [areMoreMovements, setAreMoreMovements] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+
+  type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
+  const navigation: any = useNavigation<routesProps>();
 
   useEffect(() => {
     setIsLoading(true);
@@ -69,6 +75,10 @@ export default function Dashboard({ route }: { route: any }) {
 
   const getMovementDetail = (number: String, createdAt: String) => {
     console.log(number, createdAt);
+  };
+
+  const goToContactsList = () => {
+    navigation.navigate("ContactsList", { number: user.number });
   };
 
   const currencyFormat = (num: number) => {
@@ -124,7 +134,7 @@ export default function Dashboard({ route }: { route: any }) {
       </ContentBody>
 
       <ContentActions>
-        <SinpeButton onPress={() => {}}>
+        <SinpeButton onPress={goToContactsList}>
           <TransferImage source={require("../../../assets/Union.png")} />
         </SinpeButton>
         <ButtonText>SINPE{"\n"}móvil</ButtonText>
