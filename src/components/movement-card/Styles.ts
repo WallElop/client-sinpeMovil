@@ -9,8 +9,6 @@ export const Container = styled.Pressable`
 export const Header = styled.View`
     flex-direction: row;
     justify-content: space-between;
-    /* align-items: center; */
-    /* padding: ${RFValue(10)}px; */
 `;
 
 export const Title = styled.Text`
