@@ -1,6 +1,6 @@
 import React from "react";
 import moment from "moment";
-import { Amount, Container, Title, Date, Header } from "./styles";
+import { Amount, Container, Title, Date, Header } from "./Styles";
 import UserService from "../../services/User.service";
 import IUser from "../../model/User";
 
