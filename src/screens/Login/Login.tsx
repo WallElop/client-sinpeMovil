@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text } from "react-native";
+import { Text, Alert, Keyboard } from "react-native";
 import ButtonComponent from "../../components/button/Button";
 import UserService from "../../services/User.service";
 
@@ -18,7 +18,24 @@ export default function Login() {
   const [number, setNumber] = useState("");
 
   const logIn = () => {
-    // TODO: Validate number with api
+    if(number.length == 0){
+      Alert.alert("Error", "El número de teléfono no puede estar vacío");
+      return;
+    } else if(number.length < 8){
+      Alert.alert("Error", "El número de teléfono no es válido");
+      return;
+    }
+    UserService.getUser(number).then((response) => {
+      if(response.data){
+        console.log(response.data);
+        setNumber("");
+        Keyboard.dismiss();
+      } else {
+        Alert.alert("Error", "El usuario no existe");
+      }
+    }).catch((error) => {
+      Alert.alert("Error", "No se pudo conectar con el servidor");
+    });
   };
 
   return (
@@ -37,7 +54,7 @@ export default function Login() {
 
         <InputNumber
           keyboardType="phone-pad"
-          maxLength={18}
+          maxLength={8}
           value={number}
           onChangeText={newNumber => setNumber(newNumber)}
         />
