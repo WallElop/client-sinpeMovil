@@ -6,6 +6,7 @@ import ContactsList from "../screens/ContactsList/ContactsList";
 import IUser from "../model/User";
 import MovementDetail from "../screens/MovementDetail/MovementDetail";
 import IMovement from "../model/Movement";
+import Transference from "../screens/Transference/Transference";
 
 export type MenuStackParamList = {
   Dashboard: { user: IUser };
@@ -13,6 +14,7 @@ export type MenuStackParamList = {
     movement: IMovement
   };
   ContactsList: { number: string };
+  Transference: { number: string, receiverNumber: string };
 };
 
 const { Navigator, Screen } = createNativeStackNavigator<MenuStackParamList>();
@@ -28,6 +30,7 @@ export function MenuRoutes() {
       <Screen name="Dashboard" component={Dashboard} />
       <Screen name="MovementDetail" component={MovementDetail} />
       <Screen name = "ContactsList" component = {ContactsList} />
+      <Screen name = "Transference" component = {Transference} />
     </Navigator>
   );
 }

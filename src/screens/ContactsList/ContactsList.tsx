@@ -31,22 +31,6 @@ export default function ContactsList({ route }: { route: any }) {
     navigation.goBack();
   };
 
-  const loadContacts = async () => {
-    const { status } = await Contacts.requestPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("No se puede acceder a tus contactos");
-    } else {
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.FirstName],
-        sort: Contacts.SortTypes.FirstName,
-      });
-      if (data.length > 0) {
-        setContactsData(data);
-      }
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     (async () => {
       const { status } = await Contacts.requestPermissionsAsync();
@@ -57,10 +41,14 @@ export default function ContactsList({ route }: { route: any }) {
           fields: [Contacts.Fields.Name, Contacts.Fields.PhoneNumbers],
           sort: Contacts.SortTypes.FirstName,
         });
-        
+
         // Filter contacts without phone number
-        setContactsData(data.filter((item: any) => item.phoneNumbers !== undefined));
-        setInMemoryContacts(data.filter((item: any) => item.phoneNumbers !== undefined));
+        setContactsData(
+          data.filter((item: any) => item.phoneNumbers !== undefined)
+        );
+        setInMemoryContacts(
+          data.filter((item: any) => item.phoneNumbers !== undefined)
+        );
         setIsLoading(false);
       }
     })();
@@ -91,11 +79,10 @@ export default function ContactsList({ route }: { route: any }) {
     setContactsData(newData);
   };
 
-  const handleContactPress = (item: any) => {
+  const handleContactPress = (item: any) => {    
     navigation.navigate("Transference", {
-      number: item.phoneNumbers
-        ? item.phoneNumbers[0].number
-        : "No tiene número",
+      number: number,
+      receiverNumber: item.phoneNumbers[0].number 
     });
   };
 
@@ -106,7 +93,7 @@ export default function ContactsList({ route }: { route: any }) {
         number={
           item.phoneNumbers ? item.phoneNumbers[0].number : "No tiene número"
         }
-        onPress={() => {}}
+        onPress={() => handleContactPress(item)}
       />
     );
   };
@@ -148,4 +135,3 @@ export default function ContactsList({ route }: { route: any }) {
     </Container>
   );
 }
-	
