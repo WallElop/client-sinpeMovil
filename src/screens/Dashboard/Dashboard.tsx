@@ -72,13 +72,10 @@ export default function Dashboard({ route }: { route: any }) {
       });
   };
 
-  const getMovementDetail = (receiberNumber: String, createdAt: String) => {
+  const getMovementDetail = (movement: IMovement) => {
     const senderNumber = user.number;
-    console.log(senderNumber, receiberNumber, createdAt);
     navigation.navigate("MovementDetail", {
-      senderNumber,
-      receiberNumber,
-      createdAt,
+      movement,
     });
   };
 
@@ -98,7 +95,7 @@ export default function Dashboard({ route }: { route: any }) {
         numberToFind={numberToFind}
         amount={item.amount}
         createdAt={item.createdAt}
-        onPress={() => getMovementDetail(item.receiverNumber, item.createdAt)}
+        onPress={() => getMovementDetail(item)}
       />
     );
   };

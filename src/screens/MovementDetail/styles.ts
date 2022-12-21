@@ -35,7 +35,6 @@ export const FooterContainer = styled.View`
   justify-content: flex-end;
 `;
 
-
 export const Subtitle = styled.Text`
   font-size: ${RFValue(12)}px;
   font-weight: 400;
@@ -52,15 +51,21 @@ export const DetailText = styled.Text`
   color: rgba(62, 62, 62, 1);
 `;
 
-export const IconName = styled.Text`
+export const IconNameContainer = styled.View`
+  width: ${RFValue(50)}px;
+  height: ${RFValue(50)}px;
+  align-items: center;
+  justify-content: center;
+  background-color: #c6c7ff;
+  border-radius: ${RFValue(250)}px;
+`;
+
+export const IconNameText = styled.Text`
   font-size: ${RFValue(18)}px;
   font-weight: 400;
-  padding: ${RFValue(12)}px;
   margin: ${RFValue(10)}px;
-  background-color: #c6c7ff;
   color: rgba(49, 48, 198, 1);
   align-text: center;
-  border-radius: ${RFValue(250)}px;
 `;
 
 export const HeaderText = styled.Text`

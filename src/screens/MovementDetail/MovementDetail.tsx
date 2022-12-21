@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import moment from "moment";
-import { Text } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import {
   ActionContainer,
   Container,
@@ -8,27 +8,50 @@ import {
   NavBarText,
   IconBar,
   HeaderContainer,
-  IconName,
+  IconNameText,
   HeaderText,
   AmountText,
   BodyContainer,
   Subtitle,
   DetailText,
   FooterContainer,
+  IconNameContainer,
 } from "./styles";
-import { useNavigation } from "@react-navigation/native";
 import ButtonComponent from "../../components/button/Button";
+import IUser from "../../model/User";
+import UserService from "../../services/User.service";
 
 export default function MovementDetail({ route }: { route: any }) {
   const navigation: any = useNavigation();
 
-  const { senderNumber, receiberNumber, createdAt } = route.params;
+  const movement = route.params.movement;
+
+  const [otherUser, setOtherUser] = useState({} as IUser);
+
+  // Get the other user to show the name
+  UserService.getUser(movement.receiverNumber).then((response) => {
+    if (response.data) {
+      setOtherUser(response.data);
+    }
+  });
+
+  let username;
+  if (otherUser) {
+    username = otherUser.name || "";
+  } else {
+    username = "Desconocido";
+  }
+
+  const initials = username
+    .split(" ", 2)
+    .map((n: string) => n[0])
+    .join("");
 
   const currencyFormat = (num: number) => {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
-  let momentObj = moment(createdAt, "YYYY-MM-DDTHH:mm:ss.SSSZ");
+  let momentObj = moment(movement.createdAt, "YYYY-MM-DDTHH:mm:ss.SSSZ");
   const day = momentObj.format("DD");
   const month = momentObj.format("MMMM");
   const year = momentObj.format("YYYY");
@@ -49,16 +72,18 @@ export default function MovementDetail({ route }: { route: any }) {
       </NavBar>
 
       <HeaderContainer>
-        <IconName>CN</IconName>
-        <HeaderText>SINPE móvil - Carlos Naranjo</HeaderText>
-        <AmountText>RD$ 1,000.00</AmountText>
+        <IconNameContainer>
+          <IconNameText>{initials}</IconNameText>
+        </IconNameContainer>
+        <HeaderText>SINPE móvil - {otherUser.name}</HeaderText>
+        <AmountText>{currencyFormat(movement.amount || 0)}</AmountText>
       </HeaderContainer>
       <BodyContainer>
         <Subtitle>Fecha</Subtitle>
         <DetailText>{dateFormat}</DetailText>
 
         <Subtitle>Descripción</Subtitle>
-        <DetailText>Fiesta de Hallowinnk</DetailText>
+        <DetailText>{movement.detail}</DetailText>
 
         <Subtitle>Tipo de movimiento</Subtitle>
         <DetailText>SINPE móvil</DetailText>

@@ -4,13 +4,12 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Dashboard from "../screens/Dashboard/Dashboard";
 import IUser from "../model/User";
 import MovementDetail from "../screens/MovementDetail/MovementDetail";
+import IMovement from "../model/Movement";
 
 export type MenuStackParamList = {
   Dashboard: { user: IUser };
   MovementDetail: {
-    senderNumber: string;
-    receiberNumber: string;
-    createdAt: string;
+    movement: IMovement
   };
 };
 
