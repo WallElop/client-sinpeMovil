@@ -82,7 +82,8 @@ export default function ContactsList({ route }: { route: any }) {
   const handleContactPress = (item: any) => {    
     navigation.navigate("Transference", {
       number: number,
-      receiverNumber: item.phoneNumbers[0].number 
+      receiverNumber: item.phoneNumbers[0].number,
+      name: item.name,
     });
   };
 
