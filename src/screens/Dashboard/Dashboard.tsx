@@ -79,6 +79,10 @@ export default function Dashboard({ route }: { route: any }) {
     });
   };
 
+  const goToContactsList = () => {
+    navigation.navigate("ContactsList", { number: user.number });
+  };
+
   const currencyFormat = (num: number) => {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
@@ -132,7 +136,7 @@ export default function Dashboard({ route }: { route: any }) {
       </ContentBody>
 
       <ContentActions>
-        <SinpeButton onPress={() => {}}>
+        <SinpeButton onPress={goToContactsList}>
           <TransferImage source={require("../../../assets/Union.png")} />
         </SinpeButton>
         <ButtonText>SINPE{"\n"}móvil</ButtonText>
