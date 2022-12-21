@@ -31,22 +31,6 @@ export default function ContactsList({ route }: { route: any }) {
     navigation.goBack();
   };
 
-  const loadContacts = async () => {
-    const { status } = await Contacts.requestPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("No se puede acceder a tus contactos");
-    } else {
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.FirstName, Contacts.Fields.PhoneNumbers],
-        sort: Contacts.SortTypes.FirstName,
-      });
-      if (data.length > 0) {
-        setContactsData(data);
-      }
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     (async () => {
       const { status } = await Contacts.requestPermissionsAsync();
