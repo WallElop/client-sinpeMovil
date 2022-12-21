@@ -31,6 +31,22 @@ export default function ContactsList({ route }: { route: any }) {
     navigation.goBack();
   };
 
+  const loadContacts = async () => {
+    const { status } = await Contacts.requestPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("No se puede acceder a tus contactos");
+    } else {
+      const { data } = await Contacts.getContactsAsync({
+        fields: [Contacts.Fields.FirstName],
+        sort: Contacts.SortTypes.FirstName,
+      });
+      if (data.length > 0) {
+        setContactsData(data);
+      }
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       const { status } = await Contacts.requestPermissionsAsync();
@@ -42,8 +58,9 @@ export default function ContactsList({ route }: { route: any }) {
           sort: Contacts.SortTypes.FirstName,
         });
         
-        setContactsData(data);
-        setInMemoryContacts(data);
+        // Filter contacts without phone number
+        setContactsData(data.filter((item: any) => item.phoneNumbers !== undefined));
+        setInMemoryContacts(data.filter((item: any) => item.phoneNumbers !== undefined));
         setIsLoading(false);
       }
     })();
@@ -62,11 +79,24 @@ export default function ContactsList({ route }: { route: any }) {
   const searchFilterFunction = (text: any) => {
     const newData = inMemoryContacts.filter((item: any) => {
       const itemNameData = item.name.toString().toUpperCase();
-      const itemNumberData = item.phoneNumbers ? item.phoneNumbers[0].number.toString().toUpperCase() : "No tiene número";
+      const itemNumberData = item.phoneNumbers
+        ? item.phoneNumbers[0].number.toString().toUpperCase()
+        : "No tiene número";
       const textData = text.toString().toUpperCase();
-      return itemNameData.indexOf(textData) > -1 || itemNumberData.indexOf(textData) > -1;
+      return (
+        itemNameData.indexOf(textData) > -1 ||
+        itemNumberData.indexOf(textData) > -1
+      );
     });
     setContactsData(newData);
+  };
+
+  const handleContactPress = (item: any) => {
+    navigation.navigate("Transference", {
+      number: item.phoneNumbers
+        ? item.phoneNumbers[0].number
+        : "No tiene número",
+    });
   };
 
   const renderItem = ({ item }: any) => {
@@ -118,3 +148,4 @@ export default function ContactsList({ route }: { route: any }) {
     </Container>
   );
 }
+	
