@@ -1,0 +1,97 @@
+import React, { useState } from "react";
+import { ActivityIndicator, View, Text, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import Contacts from "expo-contacts";
+
+import {
+  ActionContainer,
+  BodyContainer,
+  Container,
+  IconBar,
+  InputSearch,
+  NavBar,
+  NavBarText,
+  SearchContainer,
+  SearchIcon,
+  ContactList,
+  EmptyList,
+  EmptyListText,
+} from "./styles";
+
+export default function ContactsList({ route }: { route: any }) {
+  const navigation: any = useNavigation();
+
+  const number = route.params.number;
+  const [isLoading, setIsLoading] = useState(false);
+  const [contactsData, setContactsData] = useState([] as any);
+
+  const goBack = () => {
+    navigation.goBack();
+  };
+
+  const loadContacts = async () => {
+    const { status } = await Contacts.requestPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("No se puede acceder a tus contactos");
+    } else {
+      const { data } = await Contacts.getContactsAsync({
+        fields: [Contacts.Fields.FirstName, Contacts.Fields.PhoneNumbers],
+      });
+      if (data.length > 0) {
+        setContactsData(data);
+      }
+      setIsLoading(false);
+    }
+  };
+
+  async () => {
+    setIsLoading(true);
+    await loadContacts();
+  };
+
+  const renderFooter = () => {
+    return isLoading ? (
+      <View style={{ margin: 20, alignItems: "center" }}>
+        <ActivityIndicator animating size="large" />
+      </View>
+    ) : null;
+  };
+
+  const renderItem = ({ item }: any) => {
+    return <View />;
+  };
+
+  const renderEmpty = () => {
+    return (
+      <EmptyList>
+        <EmptyListText>No hay contactos</EmptyListText>
+      </EmptyList>
+    );
+  };
+
+  return (
+    <Container>
+      <NavBar>
+        <ActionContainer onPress={goBack}>
+          <IconBar source={require("../../../assets/Vector.png")} />
+        </ActionContainer>
+        <NavBarText>Seleccioná un contacto</NavBarText>
+      </NavBar>
+
+      <SearchContainer>
+        <SearchIcon source={require("../../../assets/search.png")} />
+        <InputSearch placeholder="Buscá por nombre o número" />
+      </SearchContainer>
+
+      <BodyContainer>
+        <ContactList
+          data={contactsData}
+          renderItem={renderItem}
+          keyExtractor={(item: any, index) => index.toString()}
+          ListEmptyComponent={renderEmpty}
+          ListFooterComponent={renderFooter}
+        />
+      </BodyContainer>
+    </Container>
+  );
+}
