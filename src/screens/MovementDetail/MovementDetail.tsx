@@ -32,14 +32,16 @@ export default function MovementDetail({ route }: { route: any }) {
   UserService.getUser(movement.receiverNumber).then((response) => {
     if (response.data) {
       setOtherUser(response.data);
+    } else {
+      setOtherUser({} as IUser);
     }
   });
 
   let username;
-  if (otherUser) {
-    username = otherUser.name || "";
+  if (otherUser.name) {
+    username = otherUser.name;
   } else {
-    username = "Desconocido";
+    username = movement.name || "Desconocido"; // If the other user is not found, show the name from the movement
   }
 
   const initials = username
@@ -75,7 +77,7 @@ export default function MovementDetail({ route }: { route: any }) {
         <IconNameContainer>
           <IconNameText>{initials}</IconNameText>
         </IconNameContainer>
-        <HeaderText>SINPE móvil - {otherUser.name}</HeaderText>
+        <HeaderText>SINPE móvil - {username}</HeaderText>
         <AmountText>{currencyFormat(movement.amount || 0)}</AmountText>
       </HeaderContainer>
       <BodyContainer>
