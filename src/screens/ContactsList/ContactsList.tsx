@@ -41,8 +41,7 @@ export default function ContactsList({ route }: { route: any }) {
           fields: [Contacts.Fields.Name, Contacts.Fields.PhoneNumbers],
           sort: Contacts.SortTypes.FirstName,
         });
-        // if (data.length > 0) {
-        // }
+        
         setContactsData(data);
         setInMemoryContacts(data);
         setIsLoading(false);
