@@ -1,4 +1,11 @@
 import React, { useState, useEffect } from "react";
+import MovementService from "../../services/Movement.service";
+import UserService from "../../services/User.service";
+import MovementCard from "../../components/movement-card/Movement-card";
+import IMovement from "../../model/Movement";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../routes/index";
+import { useNavigation } from "@react-navigation/native";
 import {
   Text,
   StyleSheet,
@@ -7,10 +14,6 @@ import {
   View,
   Alert,
 } from "react-native";
-import MovementService from "../../services/Movement.service";
-import UserService from "../../services/User.service";
-import MovementCard from "../../components/movement-card/Movement-card";
-
 import {
   Container,
   ContentBody,
@@ -27,7 +30,6 @@ import {
   ButtonText,
   Subtitle,
 } from "./styles";
-import IMovement from "../../model/Movement";
 
 export default function Dashboard({ route }: { route: any }) {
   const user = route.params.user;
@@ -38,6 +40,9 @@ export default function Dashboard({ route }: { route: any }) {
   const [lastNumber, setLastNumber] = useState(user.number);
   const [areMoreMovements, setAreMoreMovements] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+
+  type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
+  const navigation: any = useNavigation<routesProps>();
 
   useEffect(() => {
     setIsLoading(true);
@@ -67,8 +72,11 @@ export default function Dashboard({ route }: { route: any }) {
       });
   };
 
-  const getMovementDetail = (number: String, createdAt: String) => {
-    console.log(number, createdAt);
+  const getMovementDetail = (movement: IMovement) => {
+    const senderNumber = user.number;
+    navigation.navigate("MovementDetail", {
+      movement,
+    });
   };
 
   const currencyFormat = (num: number) => {
@@ -87,7 +95,7 @@ export default function Dashboard({ route }: { route: any }) {
         numberToFind={numberToFind}
         amount={item.amount}
         createdAt={item.createdAt}
-        onPress={() => getMovementDetail(item.senderNumber, item.createdAt)}
+        onPress={() => getMovementDetail(item)}
       />
     );
   };
