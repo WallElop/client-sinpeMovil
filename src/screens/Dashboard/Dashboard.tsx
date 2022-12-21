@@ -73,7 +73,6 @@ export default function Dashboard({ route }: { route: any }) {
   };
 
   const getMovementDetail = (movement: IMovement) => {
-    const senderNumber = user.number;
     navigation.navigate("MovementDetail", {
       movement,
     });
@@ -87,7 +86,7 @@ export default function Dashboard({ route }: { route: any }) {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
-  const renderItem = ({ item }: any) => {
+  const renderItem = ({ item }: any) => {    
     // If the movement is from the user, the number to find is the receiver number
     let numberToFind =
       item.senderNumber == user.number
@@ -99,6 +98,7 @@ export default function Dashboard({ route }: { route: any }) {
         numberToFind={numberToFind}
         amount={item.amount}
         createdAt={item.createdAt}
+        name={item.name}
         onPress={() => getMovementDetail(item)}
       />
     );
