@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, Text, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Contacts from "expo-contacts";
+import * as Contacts from "expo-contacts";
 
 import {
   ActionContainer,
@@ -17,6 +17,7 @@ import {
   EmptyList,
   EmptyListText,
 } from "./styles";
+import ContactCardComponent from "../../components/contact-card/Contact-card";
 
 export default function ContactsList({ route }: { route: any }) {
   const navigation: any = useNavigation();
@@ -24,6 +25,7 @@ export default function ContactsList({ route }: { route: any }) {
   const number = route.params.number;
   const [isLoading, setIsLoading] = useState(false);
   const [contactsData, setContactsData] = useState([] as any);
+  const [inMemoryContacts, setInMemoryContacts] = useState([] as any);
 
   const goBack = () => {
     navigation.goBack();
@@ -36,6 +38,7 @@ export default function ContactsList({ route }: { route: any }) {
     } else {
       const { data } = await Contacts.getContactsAsync({
         fields: [Contacts.Fields.FirstName, Contacts.Fields.PhoneNumbers],
+        sort: Contacts.SortTypes.FirstName,
       });
       if (data.length > 0) {
         setContactsData(data);
@@ -44,10 +47,26 @@ export default function ContactsList({ route }: { route: any }) {
     }
   };
 
-  async () => {
+  useEffect(() => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("No se puede acceder a tus contactos");
+      } else {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.Name, Contacts.Fields.PhoneNumbers],
+          sort: Contacts.SortTypes.FirstName,
+        });
+        // if (data.length > 0) {
+        // }
+        setContactsData(data);
+        setInMemoryContacts(data);
+        setIsLoading(false);
+      }
+    })();
     setIsLoading(true);
-    await loadContacts();
-  };
+    return () => {};
+  }, []);
 
   const renderFooter = () => {
     return isLoading ? (
@@ -57,8 +76,26 @@ export default function ContactsList({ route }: { route: any }) {
     ) : null;
   };
 
+  const searchFilterFunction = (text: any) => {
+    const newData = inMemoryContacts.filter((item: any) => {
+      const itemNameData = item.name.toString().toUpperCase();
+      const itemNumberData = item.phoneNumbers ? item.phoneNumbers[0].number.toString().toUpperCase() : "No tiene número";
+      const textData = text.toString().toUpperCase();
+      return itemNameData.indexOf(textData) > -1 || itemNumberData.indexOf(textData) > -1;
+    });
+    setContactsData(newData);
+  };
+
   const renderItem = ({ item }: any) => {
-    return <View />;
+    return (
+      <ContactCardComponent
+        name={item.name}
+        number={
+          item.phoneNumbers ? item.phoneNumbers[0].number : "No tiene número"
+        }
+        onPress={() => {}}
+      />
+    );
   };
 
   const renderEmpty = () => {
@@ -80,7 +117,10 @@ export default function ContactsList({ route }: { route: any }) {
 
       <SearchContainer>
         <SearchIcon source={require("../../../assets/search.png")} />
-        <InputSearch placeholder="Buscá por nombre o número" />
+        <InputSearch
+          placeholder="Buscá por nombre o número"
+          onChangeText={(value) => searchFilterFunction(value)}
+        />
       </SearchContainer>
 
       <BodyContainer>
