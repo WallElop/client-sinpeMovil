@@ -29,6 +29,7 @@ import {
   ContentActions,
   ButtonText,
   Subtitle,
+  RefreshingContainer,
 } from "./styles";
 
 export default function Dashboard({ route }: { route: any }) {
@@ -40,6 +41,7 @@ export default function Dashboard({ route }: { route: any }) {
   const [lastNumber, setLastNumber] = useState(user.number); // For pagination
   const [areMoreMovements, setAreMoreMovements] = useState(true); // For pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [refreshing, setRefreshing] = useState(false);
 
   type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
   const navigation: any = useNavigation<routesProps>();
@@ -58,6 +60,16 @@ export default function Dashboard({ route }: { route: any }) {
     }
     return () => {};
   }, [currentPage, isFocused]);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setData([]);
+    setLastCreatedAt("");
+    setLastNumber("");
+    setAreMoreMovements(true);
+    setCurrentPage(1);
+    getMovements().then(() => setRefreshing(false));
+  }, []);
 
   const getMovements = () => {
     return MovementService.getMovements(lastNumber, lastCreatedAt)
@@ -139,19 +151,37 @@ export default function Dashboard({ route }: { route: any }) {
         <LogoImage source={require("../../../assets/logo_wink_azul.png")} />
       </ContentHeader>
 
-      <ContentBody>
-        <Title>Cuenta Colones</Title>
-        <Description style={{ marginTop: 20 }}>Saldo disponible</Description>
-        <Balance>{currencyFormat(user.balance)}</Balance>
-        <Description style={{ marginTop: 30 }}>¿Qué quieres hacer?</Description>
-      </ContentBody>
+      <View>
+        <RefreshingContainer
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <ContentBody>
+            <Title>Cuenta Colones</Title>
+            <Description style={{ marginTop: 20 }}>
+              Saldo disponible
+            </Description>
+            <Balance>{currencyFormat(user.balance)}</Balance>
+          </ContentBody>
 
-      <ContentActions>
-        <SinpeButton onPress={goToContactsList}>
-          <TransferImage source={require("../../../assets/Union.png")} />
-        </SinpeButton>
-        <ButtonText>SINPE{"\n"}móvil</ButtonText>
-      </ContentActions>
+          <ContentActions>
+            <Description
+              style={{
+                marginVertical: 30,
+                paddingLeft: 20,
+                alignSelf: "flex-start",
+              }}
+            >
+              ¿Qué quieres hacer?
+            </Description>
+            <SinpeButton onPress={goToContactsList}>
+              <TransferImage source={require("../../../assets/Union.png")} />
+            </SinpeButton>
+            <ButtonText>SINPE{"\n"}móvil</ButtonText>
+          </ContentActions>
+        </RefreshingContainer>
+      </View>
 
       <MovementsContainer>
         <Subtitle>Movimientos</Subtitle>
