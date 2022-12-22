@@ -7,7 +7,7 @@ class MovementDataService {
   }
 
   getMovement(number: String, createdAt: String) {
-    return http.get<IMovement>(`/movement/${number}/${createdAt}`);
+    return http.get(`/movement/${number}/${createdAt}`);
   }
 
   getMovements(number: String, createdAt: String) {

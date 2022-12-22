@@ -4,4 +4,5 @@ export default interface IMovement {
     receiverNumber?: string,
     amount?: number,
     detail?: string,
+    name?: string,
 }

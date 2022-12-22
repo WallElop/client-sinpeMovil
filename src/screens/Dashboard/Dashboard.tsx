@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from "react";
+import MovementService from "../../services/Movement.service";
+import MovementCard from "../../components/movement-card/Movement-card";
+import IMovement from "../../model/Movement";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../routes/index";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import {
   Text,
   StyleSheet,
@@ -6,11 +12,8 @@ import {
   ActivityIndicator,
   View,
   Alert,
+  RefreshControl,
 } from "react-native";
-import MovementService from "../../services/Movement.service";
-import UserService from "../../services/User.service";
-import MovementCard from "../../components/movement-card/Movement-card";
-
 import {
   Container,
   ContentBody,
@@ -27,27 +30,40 @@ import {
   ButtonText,
   Subtitle,
 } from "./styles";
-import IMovement from "../../model/Movement";
 
 export default function Dashboard({ route }: { route: any }) {
   const user = route.params.user;
 
-  const [data, setData] = useState([] as IMovement[]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastCreatedAt, setLastCreatedAt] = useState("");
-  const [lastNumber, setLastNumber] = useState(user.number);
-  const [areMoreMovements, setAreMoreMovements] = useState(true);
+  const [data, setData] = useState([] as any[]);
+  const [isLoading, setIsLoading] = useState(false); // For loading
+  const [lastCreatedAt, setLastCreatedAt] = useState(""); // For pagination
+  const [lastNumber, setLastNumber] = useState(user.number); // For pagination
+  const [areMoreMovements, setAreMoreMovements] = useState(true); // For pagination
   const [currentPage, setCurrentPage] = useState(1);
 
+  type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
+  const navigation: any = useNavigation<routesProps>();
+  const isFocused = useIsFocused();
+
   useEffect(() => {
-    setIsLoading(true);
-    getMovements();
+    if (isFocused) {
+      setIsLoading(true);
+      getMovements();
+    } else {
+      setData([]);
+      setLastCreatedAt("");
+      setLastNumber(user.number);
+      setAreMoreMovements(true);
+      setCurrentPage(1);
+    }
     return () => {};
-  }, [currentPage]);
+  }, [currentPage, isFocused]);
 
   const getMovements = () => {
     return MovementService.getMovements(lastNumber, lastCreatedAt)
       .then((response) => {
+        console.log(lastNumber, lastCreatedAt);
+
         if (response.data.LastEvaluatedKey) {
           setLastCreatedAt(response.data.LastEvaluatedKey.createdAt);
           setLastNumber(response.data.LastEvaluatedKey.senderNumber);
@@ -67,8 +83,14 @@ export default function Dashboard({ route }: { route: any }) {
       });
   };
 
-  const getMovementDetail = (number: String, createdAt: String) => {
-    console.log(number, createdAt);
+  const getMovementDetail = (movement: IMovement) => {
+    navigation.navigate("MovementDetail", {
+      movement,
+    });
+  };
+
+  const goToContactsList = () => {
+    navigation.navigate("ContactsList", { number: user.number });
   };
 
   const currencyFormat = (num: number) => {
@@ -87,7 +109,8 @@ export default function Dashboard({ route }: { route: any }) {
         numberToFind={numberToFind}
         amount={item.amount}
         createdAt={item.createdAt}
-        onPress={() => getMovementDetail(item.senderNumber, item.createdAt)}
+        name={item.name}
+        onPress={() => getMovementDetail(item)}
       />
     );
   };
@@ -124,7 +147,7 @@ export default function Dashboard({ route }: { route: any }) {
       </ContentBody>
 
       <ContentActions>
-        <SinpeButton onPress={() => {}}>
+        <SinpeButton onPress={goToContactsList}>
           <TransferImage source={require("../../../assets/Union.png")} />
         </SinpeButton>
         <ButtonText>SINPE{"\n"}móvil</ButtonText>
