@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   ActionContainer,
   BodyContainer,
@@ -17,7 +17,7 @@ import {
   InputSearch,
   FooterContainer,
 } from "./styles";
-import { Text } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import ButtonComponent from "../../components/button/Button";
 import MovementService from "../../services/Movement.service";
@@ -30,7 +30,8 @@ export default function Transference({ route }: { route: any }) {
   type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
   const navigation: any = useNavigation<routesProps>();
 
-  const { number, receiverNumber, name } = route.params;
+  const { user, receiverNumber, name } = route.params;
+  console.log(user);
 
   const currencyFormat = (num: number) => {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
@@ -39,36 +40,49 @@ export default function Transference({ route }: { route: any }) {
   const [amount, setAmount] = React.useState(0);
   const [stringAmount, setStringAmount] = React.useState(currencyFormat(0));
   const [detail, setDetail] = React.useState("");
+  const [loadingPage, setLoadingPage] = useState(false); // For loading
+
+  // Get the user
 
   const goBack = () => {
     navigation.goBack();
   };
 
-  const sendMoney = () => {
-    // Create the movement
-    MovementService.createMovement({
-      amount: amount,
-      detail: detail,
-      receiverNumber: receiverNumber,
-      senderNumber: number,
-      name: name,
-    }).then((response) => {
-      if (response.data) {
-        // Update the balance of the user
-        const user: IUser = {
-          number: number,
-          balance: amount,
-        };
-        UserService.editUser(number, user).then((res) => {
-          if (res.data) {
-            navigation.navigate("MenuRoutes", {
-              screen: "Dashboard",
-              params: { user: res.data.user },
-            });
-          }
-        });
-      }
+  const goHome = (currentUser: any) => {
+    navigation.navigate("MenuRoutes", {
+      screen: "Dashboard",
+      params: { user: currentUser },
     });
+  };
+
+  const sendMoney = () => {
+    if (user.balance && user.balance >= amount) {
+      setLoadingPage(true); // Show loading
+      // Create the movement
+      MovementService.createMovement({
+        amount: amount,
+        detail: detail,
+        receiverNumber: receiverNumber,
+        senderNumber: user.number,
+        name: name,
+      }).then((response) => {
+        if (response.data) {
+          // Update the balance of the user
+          const userUpdate: IUser = {
+            number: user.number,
+            balance: amount,
+          };
+          UserService.editUser(user.number, userUpdate).then((res) => {
+            if (res.data) {
+              setLoadingPage(false);
+              goHome(res.data.user);
+            }
+          });
+        }
+      });
+    } else {
+      alert("No tienes saldo suficiente para realizar esta transacción");
+    }
   };
 
   const initials = name
@@ -76,7 +90,7 @@ export default function Transference({ route }: { route: any }) {
     .map((n: string) => n[0])
     .join("");
 
-  return (
+  return !loadingPage ? (
     <Container>
       <NavBar>
         <ActionContainer onPress={goBack}>
@@ -123,5 +137,17 @@ export default function Transference({ route }: { route: any }) {
         <ButtonComponent title="Confirmar" onPress={sendMoney} />
       </FooterContainer>
     </Container>
+  ) : (
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+      }}
+    >
+      <ActivityIndicator animating size="large" />
+      <Title>Enviando dinero...</Title>
+    </View>
   );
 }

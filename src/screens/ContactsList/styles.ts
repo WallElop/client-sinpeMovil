@@ -36,9 +36,9 @@ export const SearchContainer = styled.View`
 `;
 
 export const BodyContainer = styled.View`
-    flex: 1;
-    padding: ${RFValue(10)}px;
-    background-color: #fff;
+  flex: 1;
+  padding: ${RFValue(10)}px;
+  background-color: #fff;
 `;
 
 export const ContactList = styled.FlatList`
@@ -74,14 +74,23 @@ export const IconBar = styled.Image`
 `;
 
 export const EmptyList = styled.View`
-    flex: 1;
-    align-items: center;
-    justify-content: center;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const EmptyListText = styled.Text`
-    font-size: ${RFValue(16)}px;
-    font-weight: 700;
-    color: rgba(76, 81, 247, 1);
-    align-text: center;
+  font-size: ${RFValue(16)}px;
+  font-weight: 700;
+  color: rgba(76, 81, 247, 1);
+  align-text: center;
+`;
+
+export const Title = styled.Text`
+  font-size: ${RFValue(16)}px;
+  margin-top: ${RFValue(10)}px;
+  font-weight: 700;
+  color: rgba(76, 81, 247, 1);
+  align-text: center;
+  margin-bottom: ${RFValue(10)}px;
 `;

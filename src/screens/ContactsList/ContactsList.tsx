@@ -16,14 +16,18 @@ import {
   ContactList,
   EmptyList,
   EmptyListText,
+  Title,
 } from "./styles";
 import ContactCardComponent from "../../components/contact-card/Contact-card";
+import UserService from "../../services/User.service";
+import IUser from "../../model/User";
 
 export default function ContactsList({ route }: { route: any }) {
   const navigation: any = useNavigation();
 
   const number = route.params.number;
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPage, setLoadingPage] = useState(false);
   const [contactsData, setContactsData] = useState([] as any);
   const [inMemoryContacts, setInMemoryContacts] = useState([] as any);
 
@@ -79,11 +83,20 @@ export default function ContactsList({ route }: { route: any }) {
     setContactsData(newData);
   };
 
-  const handleContactPress = (item: any) => {    
-    navigation.navigate("Transference", {
-      number: number,
-      receiverNumber: item.phoneNumbers[0].number,
-      name: item.name,
+  const handleContactPress = (item: any) => {
+    setLoadingPage(true);
+    UserService.getUser(number).then((response) => {
+      if (response.data) {
+        navigation.navigate("Transference", {
+          user: response.data,
+          receiverNumber: item.phoneNumbers[0].number,
+          name: item.name,
+        });
+      } else {
+        Alert.alert("Error inesperado");
+        goBack();
+      }
+      setLoadingPage(false);
     });
   };
 
@@ -107,7 +120,7 @@ export default function ContactsList({ route }: { route: any }) {
     );
   };
 
-  return (
+  return !loadingPage ? (
     <Container>
       <NavBar>
         <ActionContainer onPress={goBack}>
@@ -134,5 +147,17 @@ export default function ContactsList({ route }: { route: any }) {
         />
       </BodyContainer>
     </Container>
+  ) : (
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+      }}
+    >
+      <ActivityIndicator animating size="large" />
+      <Title>Cargando...</Title>
+    </View>
   );
 }
