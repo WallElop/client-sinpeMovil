@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import MovementService from "../../services/Movement.service";
-import UserService from "../../services/User.service";
 import MovementCard from "../../components/movement-card/Movement-card";
 import IMovement from "../../model/Movement";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../routes/index";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import {
   Text,
   StyleSheet,
@@ -13,6 +12,7 @@ import {
   ActivityIndicator,
   View,
   Alert,
+  RefreshControl,
 } from "react-native";
 import {
   Container,
@@ -34,25 +34,36 @@ import {
 export default function Dashboard({ route }: { route: any }) {
   const user = route.params.user;
 
-  const [data, setData] = useState([] as IMovement[]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastCreatedAt, setLastCreatedAt] = useState("");
-  const [lastNumber, setLastNumber] = useState(user.number);
-  const [areMoreMovements, setAreMoreMovements] = useState(true);
+  const [data, setData] = useState([] as any[]);
+  const [isLoading, setIsLoading] = useState(false); // For loading
+  const [lastCreatedAt, setLastCreatedAt] = useState(""); // For pagination
+  const [lastNumber, setLastNumber] = useState(user.number); // For pagination
+  const [areMoreMovements, setAreMoreMovements] = useState(true); // For pagination
   const [currentPage, setCurrentPage] = useState(1);
 
   type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
   const navigation: any = useNavigation<routesProps>();
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    setIsLoading(true);
-    getMovements();
+    if (isFocused) {
+      setIsLoading(true);
+      getMovements();
+    } else {
+      setData([]);
+      setLastCreatedAt("");
+      setLastNumber(user.number);
+      setAreMoreMovements(true);
+      setCurrentPage(1);
+    }
     return () => {};
-  }, [currentPage]);
+  }, [currentPage, isFocused]);
 
   const getMovements = () => {
     return MovementService.getMovements(lastNumber, lastCreatedAt)
       .then((response) => {
+        console.log(lastNumber, lastCreatedAt);
+
         if (response.data.LastEvaluatedKey) {
           setLastCreatedAt(response.data.LastEvaluatedKey.createdAt);
           setLastNumber(response.data.LastEvaluatedKey.senderNumber);
@@ -86,7 +97,7 @@ export default function Dashboard({ route }: { route: any }) {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
-  const renderItem = ({ item }: any) => {    
+  const renderItem = ({ item }: any) => {
     // If the movement is from the user, the number to find is the receiver number
     let numberToFind =
       item.senderNumber == user.number

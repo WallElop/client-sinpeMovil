@@ -16,35 +16,23 @@ import {
   ContactList,
   EmptyList,
   EmptyListText,
+  Title,
 } from "./styles";
 import ContactCardComponent from "../../components/contact-card/Contact-card";
+import UserService from "../../services/User.service";
+import IUser from "../../model/User";
 
 export default function ContactsList({ route }: { route: any }) {
   const navigation: any = useNavigation();
 
   const number = route.params.number;
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPage, setLoadingPage] = useState(false);
   const [contactsData, setContactsData] = useState([] as any);
   const [inMemoryContacts, setInMemoryContacts] = useState([] as any);
 
   const goBack = () => {
     navigation.goBack();
-  };
-
-  const loadContacts = async () => {
-    const { status } = await Contacts.requestPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("No se puede acceder a tus contactos");
-    } else {
-      const { data } = await Contacts.getContactsAsync({
-        fields: [Contacts.Fields.FirstName],
-        sort: Contacts.SortTypes.FirstName,
-      });
-      if (data.length > 0) {
-        setContactsData(data);
-      }
-      setIsLoading(false);
-    }
   };
 
   useEffect(() => {
@@ -57,10 +45,14 @@ export default function ContactsList({ route }: { route: any }) {
           fields: [Contacts.Fields.Name, Contacts.Fields.PhoneNumbers],
           sort: Contacts.SortTypes.FirstName,
         });
-        
+
         // Filter contacts without phone number
-        setContactsData(data.filter((item: any) => item.phoneNumbers !== undefined));
-        setInMemoryContacts(data.filter((item: any) => item.phoneNumbers !== undefined));
+        setContactsData(
+          data.filter((item: any) => item.phoneNumbers !== undefined)
+        );
+        setInMemoryContacts(
+          data.filter((item: any) => item.phoneNumbers !== undefined)
+        );
         setIsLoading(false);
       }
     })();
@@ -92,10 +84,19 @@ export default function ContactsList({ route }: { route: any }) {
   };
 
   const handleContactPress = (item: any) => {
-    navigation.navigate("Transference", {
-      number: item.phoneNumbers
-        ? item.phoneNumbers[0].number
-        : "No tiene número",
+    setLoadingPage(true);
+    UserService.getUser(number).then((response) => {
+      if (response.data) {
+        navigation.navigate("Transference", {
+          user: response.data,
+          receiverNumber: item.phoneNumbers[0].number,
+          name: item.name,
+        });
+      } else {
+        Alert.alert("Error inesperado");
+        goBack();
+      }
+      setLoadingPage(false);
     });
   };
 
@@ -106,7 +107,7 @@ export default function ContactsList({ route }: { route: any }) {
         number={
           item.phoneNumbers ? item.phoneNumbers[0].number : "No tiene número"
         }
-        onPress={() => {}}
+        onPress={() => handleContactPress(item)}
       />
     );
   };
@@ -119,7 +120,7 @@ export default function ContactsList({ route }: { route: any }) {
     );
   };
 
-  return (
+  return !loadingPage ? (
     <Container>
       <NavBar>
         <ActionContainer onPress={goBack}>
@@ -146,6 +147,17 @@ export default function ContactsList({ route }: { route: any }) {
         />
       </BodyContainer>
     </Container>
+  ) : (
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+      }}
+    >
+      <ActivityIndicator animating size="large" />
+      <Title>Cargando...</Title>
+    </View>
   );
 }
-	

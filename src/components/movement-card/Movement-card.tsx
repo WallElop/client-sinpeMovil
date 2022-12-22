@@ -28,11 +28,11 @@ export default function CardComponent({
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
-  UserService.getUser(numberToFind).then((response) => {
-    if (response.data) {
-      setOtherUser(response.data);
-    }
-  });
+  // UserService.getUser(numberToFind).then((response) => {
+  //   if (response.data) {
+  //     setOtherUser(response.data);
+  //   }
+  // });
   let momentObj = moment(createdAt, "YYYY-MM-DDTHH:mm:ss.SSSZ");
 
   if (
@@ -48,7 +48,7 @@ export default function CardComponent({
   return (
     <Container onPress={onPress}>
       <Header>
-        <Title>SINPE móvil - {otherUser.name || name}</Title>
+        <Title>SINPE móvil - {name}</Title>
         <Amount style={{ color: "rgba(244, 67, 54, 1)" }}>
           - {currencyFormat(Math.abs(amount))}
         </Amount>
