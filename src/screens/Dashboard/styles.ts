@@ -11,6 +11,10 @@ export const ContentHeader = styled.View`
   justify-content: center;
 `;
 
+export const RefreshingContainer = styled.ScrollView`
+x  background-color: #fff;
+`;
+
 export const ContentBody = styled.View`
   padding-start: ${RFValue(15)}px;
   margin-top: ${RFValue(10)}px;
@@ -19,7 +23,7 @@ export const ContentBody = styled.View`
 export const ContentActions = styled.View`
   background-color: #fff;
   align-items: center;
-  padding: ${RFValue(30)}px;
+  /* padding-left: ${RFValue(30)}px; */
 `;
 
 export const MovementsContainer = styled.View`
