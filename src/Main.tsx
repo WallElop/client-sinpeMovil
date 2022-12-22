@@ -4,7 +4,6 @@ import { StyleSheet, View, Text, SafeAreaView, StatusBar } from "react-native";
 import { ThemeProvider } from "styled-components/native";
 import { NavigationContainer } from "@react-navigation/native";
 
-import Login from "./screens/Login/Login";
 import Routes from "./routes/index";
 
 export default function Main() {

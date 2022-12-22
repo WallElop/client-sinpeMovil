@@ -1,13 +1,11 @@
 import React from "react";
 import moment from "moment";
 import { Amount, Container, Title, Date, Header } from "./Styles";
-import UserService from "../../services/User.service";
 import IUser from "../../model/User";
-import MovementDetail from "../../screens/MovementDetail/MovementDetail";
 
 interface ICardProps {
   numberToFind: string;
-  amount: number; 
+  amount: number;
   createdAt: string;
   name: string;
   onPress: () => void;
@@ -20,19 +18,13 @@ export default function CardComponent({
   name,
   onPress = () => {},
 }: ICardProps) {
-  // console.log("name: ", name);
-  
-  const [otherUser, setOtherUser] = React.useState({} as IUser);
 
+  // Function to format currency
   const currencyFormat = (num: number) => {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
-  // UserService.getUser(numberToFind).then((response) => {
-  //   if (response.data) {
-  //     setOtherUser(response.data);
-  //   }
-  // });
+  // Format date
   let momentObj = moment(createdAt, "YYYY-MM-DDTHH:mm:ss.SSSZ");
 
   if (
@@ -40,9 +32,9 @@ export default function CardComponent({
     momentObj.month() == moment().month() &&
     momentObj.year() == moment().year()
   ) {
-    createdAt = "Hoy " + momentObj.format("hh:mm a");
+    createdAt = "Hoy " + momentObj.format("hh:mm a"); // If the date is today, show "Hoy" instead of the date and time
   } else {
-    createdAt = momentObj.format("DD/MM/YYYY hh:mm a");
+    createdAt = momentObj.format("DD/MM/YYYY hh:mm a"); // If the date is not today, show the date and time
   }
 
   return (

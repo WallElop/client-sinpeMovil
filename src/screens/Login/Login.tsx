@@ -18,14 +18,18 @@ import {
 } from "./styles";
 
 export default function Login() {
-  type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
-
+  // States
   const [number, setNumber] = useState("");
   const [loadingPage, setLoadingPage] = useState(false); // For loading
-
+  
+  // Get the navigation object
+  type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
   const navigation: any = useNavigation<routesProps>();
 
+  // Function to log in
   const logIn = () => {
+
+    // Verify the input
     if (number.length == 0) {
       Alert.alert("Error", "El número de teléfono no puede estar vacío");
       return;
@@ -33,12 +37,16 @@ export default function Login() {
       Alert.alert("Error", "El número de teléfono no es válido");
       return;
     }
-    setLoadingPage(true);
+
+    // Log in
+    setLoadingPage(true); // Show the loading
     UserService.getUser(number)
       .then((response) => {
         if (response.data) {
           setNumber("");
           Keyboard.dismiss();
+
+          // Navigate to the dashboard
           navigation.navigate("MenuRoutes", {
             screen: "Dashboard",
             params: { user: response.data },
@@ -46,7 +54,7 @@ export default function Login() {
         } else {
           Alert.alert("Error", "El usuario no existe");
         }
-        setLoadingPage(false);
+        setLoadingPage(false); // Hide the loading
       })
       .catch((error) => {
         Alert.alert("Error", "No se pudo conectar con el servidor");

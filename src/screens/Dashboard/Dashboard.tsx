@@ -5,6 +5,7 @@ import IMovement from "../../model/Movement";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../routes/index";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
+
 import {
   Text,
   StyleSheet,
@@ -14,6 +15,7 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
+
 import {
   Container,
   ContentBody,
@@ -33,25 +35,32 @@ import {
 } from "./styles";
 
 export default function Dashboard({ route }: { route: any }) {
-  const user = route.params.user;
+  const user = route.params.user; // Get the user from the route params
 
   const [data, setData] = useState([] as any[]);
   const [isLoading, setIsLoading] = useState(false); // For loading
+
   const [lastCreatedAt, setLastCreatedAt] = useState(""); // For pagination
   const [lastNumber, setLastNumber] = useState(user.number); // For pagination
   const [areMoreMovements, setAreMoreMovements] = useState(true); // For pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [refreshing, setRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // For pagination
 
+  const [refreshing, setRefreshing] = useState(false); // For refresh
+
+  // Get the navigation object
   type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
   const navigation: any = useNavigation<routesProps>();
+
+  // To know if the screen is focused (to refresh the data)
   const isFocused = useIsFocused();
 
   useEffect(() => {
     if (isFocused) {
+      // If the screen is focused, get the movements
       setIsLoading(true);
       getMovements();
     } else {
+      // If the screen is not focused, reset the data
       setData([]);
       setLastCreatedAt("");
       setLastNumber(user.number);
@@ -61,6 +70,7 @@ export default function Dashboard({ route }: { route: any }) {
     return () => {};
   }, [currentPage, isFocused]);
 
+  // Function to refresh the whole screen
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     setData([]);
@@ -71,12 +81,13 @@ export default function Dashboard({ route }: { route: any }) {
     getMovements().then(() => setRefreshing(false));
   }, []);
 
+  // Function to get the movements
   const getMovements = () => {
     return MovementService.getMovements(lastNumber, lastCreatedAt)
       .then((response) => {
-        console.log(lastNumber, lastCreatedAt);
-
+        // Verify if there are more movements
         if (response.data.LastEvaluatedKey) {
+          // Set the last data to get the next page
           setLastCreatedAt(response.data.LastEvaluatedKey.createdAt);
           setLastNumber(response.data.LastEvaluatedKey.senderNumber);
         } else {
@@ -95,20 +106,24 @@ export default function Dashboard({ route }: { route: any }) {
       });
   };
 
+  // Function to go to the movement detail screen
   const getMovementDetail = (movement: IMovement) => {
     navigation.navigate("MovementDetail", {
       movement,
     });
   };
 
+  // Function to go to the contacts list screen
   const goToContactsList = () => {
     navigation.navigate("ContactsList", { number: user.number });
   };
 
+  // Function to format the currency
   const currencyFormat = (num: number) => {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
+  // Function to render the movements
   const renderItem = ({ item }: any) => {
     // If the movement is from the user, the number to find is the receiver number
     let numberToFind =
@@ -127,6 +142,7 @@ export default function Dashboard({ route }: { route: any }) {
     );
   };
 
+  // Function to render the footer (loading)
   const renderFooter = () => {
     return isLoading ? (
       <View style={{ margin: 20, alignItems: "center" }}>
@@ -135,12 +151,13 @@ export default function Dashboard({ route }: { route: any }) {
     ) : null;
   };
 
+  // Function to load more movements
   const handleLoadMore = () => {
-    if (areMoreMovements) {
+    if (areMoreMovements) { // If there are more movements, get the next page
       setCurrentPage(currentPage + 1);
       setLastCreatedAt(data[data.length - 1].createdAt);
       setIsLoading(true);
-    } else {
+    } else { // If there are no more movements, stop loading
       setIsLoading(false);
     }
   };

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View, Text, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as Contacts from "expo-contacts";
+import ContactCardComponent from "../../components/contact-card/Contact-card";
+import UserService from "../../services/User.service";
 
 import {
   ActionContainer,
@@ -18,26 +20,25 @@ import {
   EmptyListText,
   Title,
 } from "./styles";
-import ContactCardComponent from "../../components/contact-card/Contact-card";
-import UserService from "../../services/User.service";
-import IUser from "../../model/User";
 
 export default function ContactsList({ route }: { route: any }) {
-  const navigation: any = useNavigation();
+  const number = route.params.number; // Get the number from the route params
 
-  const number = route.params.number;
+  const navigation: any = useNavigation(); // Get the navigation object
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(false);
   const [contactsData, setContactsData] = useState([] as any);
   const [inMemoryContacts, setInMemoryContacts] = useState([] as any);
 
+  // Function to go back
   const goBack = () => {
     navigation.goBack();
   };
 
   useEffect(() => {
     (async () => {
-      const { status } = await Contacts.requestPermissionsAsync();
+      const { status } = await Contacts.requestPermissionsAsync(); // Ask for permission to access contacts
       if (status !== "granted") {
         Alert.alert("No se puede acceder a tus contactos");
       } else {
@@ -60,6 +61,7 @@ export default function ContactsList({ route }: { route: any }) {
     return () => {};
   }, []);
 
+  // Function to render the loading indicator
   const renderFooter = () => {
     return isLoading ? (
       <View style={{ margin: 20, alignItems: "center" }}>
@@ -68,6 +70,7 @@ export default function ContactsList({ route }: { route: any }) {
     ) : null;
   };
 
+  // Function to find the contacts that match the search
   const searchFilterFunction = (text: any) => {
     const newData = inMemoryContacts.filter((item: any) => {
       const itemNameData = item.name.toString().toUpperCase();
@@ -83,16 +86,19 @@ export default function ContactsList({ route }: { route: any }) {
     setContactsData(newData);
   };
 
+  // Function to handle the contact press
   const handleContactPress = (item: any) => {
-    setLoadingPage(true);
+    setLoadingPage(true); // Set the loading indicator to true
+
+    // Get the user data from the server
     UserService.getUser(number).then((response) => {
-      if (response.data) {
+      if (response.data) { // If the user exists, navigate to the transference screen
         navigation.navigate("Transference", {
           user: response.data,
           receiverNumber: item.phoneNumbers[0].number,
           name: item.name,
         });
-      } else {
+      } else { // If the user doesn't exist, show an error message
         Alert.alert("Error inesperado");
         goBack();
       }
@@ -100,6 +106,7 @@ export default function ContactsList({ route }: { route: any }) {
     });
   };
 
+  // Function to render the contact card
   const renderItem = ({ item }: any) => {
     return (
       <ContactCardComponent
@@ -112,6 +119,7 @@ export default function ContactsList({ route }: { route: any }) {
     );
   };
 
+  // Function to render the empty list message
   const renderEmpty = () => {
     return (
       <EmptyList>

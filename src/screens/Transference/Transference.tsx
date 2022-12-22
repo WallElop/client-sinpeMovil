@@ -1,4 +1,13 @@
 import React, { useState } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import ButtonComponent from "../../components/button/Button";
+import MovementService from "../../services/Movement.service";
+import UserService from "../../services/User.service";
+import IUser from "../../model/User";
+import { RootStackParamList } from "../../routes";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+
 import {
   ActionContainer,
   BodyContainer,
@@ -17,37 +26,38 @@ import {
   InputSearch,
   FooterContainer,
 } from "./styles";
-import { ActivityIndicator, Text, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import ButtonComponent from "../../components/button/Button";
-import MovementService from "../../services/Movement.service";
-import UserService from "../../services/User.service";
-import IUser from "../../model/User";
-import { RootStackParamList } from "../../routes";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export default function Transference({ route }: { route: any }) {
+  // Get the user from the route params
+  const { user, receiverNumber, name } = route.params;
+
+  // Get the navigation object
   type routesProps = NativeStackScreenProps<RootStackParamList, "MenuRoutes">;
   const navigation: any = useNavigation<routesProps>();
 
-  const { user, receiverNumber, name } = route.params;
-  console.log(user);
-
+  // Format the currency
   const currencyFormat = (num: number) => {
     return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
+  // State variables
   const [amount, setAmount] = React.useState(0);
   const [stringAmount, setStringAmount] = React.useState(currencyFormat(0));
   const [detail, setDetail] = React.useState("");
   const [loadingPage, setLoadingPage] = useState(false); // For loading
 
-  // Get the user
+  // Get the initials of the name
+  const initials = name
+    .split(" ", 2)
+    .map((n: string) => n[0])
+    .join("");
 
+  // Go back to the previous screen
   const goBack = () => {
     navigation.goBack();
   };
 
+  // Go to the dashboard
   const goHome = (currentUser: any) => {
     navigation.navigate("MenuRoutes", {
       screen: "Dashboard",
@@ -55,8 +65,10 @@ export default function Transference({ route }: { route: any }) {
     });
   };
 
+  // Send the money
   const sendMoney = () => {
     if (user.balance && user.balance >= amount) {
+      // Verify the balance
       setLoadingPage(true); // Show loading
       // Create the movement
       MovementService.createMovement({
@@ -66,6 +78,7 @@ export default function Transference({ route }: { route: any }) {
         senderNumber: user.number,
         name: name,
       }).then((response) => {
+        // If the movement was created
         if (response.data) {
           // Update the balance of the user
           const userUpdate: IUser = {
@@ -74,7 +87,7 @@ export default function Transference({ route }: { route: any }) {
           };
           UserService.editUser(user.number, userUpdate).then((res) => {
             if (res.data) {
-              setLoadingPage(false);
+              setLoadingPage(false); // Hide loading
               goHome(res.data.user);
             }
           });
@@ -84,11 +97,6 @@ export default function Transference({ route }: { route: any }) {
       alert("No tienes saldo suficiente para realizar esta transacción");
     }
   };
-
-  const initials = name
-    .split(" ", 2)
-    .map((n: string) => n[0])
-    .join("");
 
   return !loadingPage ? (
     <Container>

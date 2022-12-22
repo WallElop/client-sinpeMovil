@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import moment from "moment";
 import { useNavigation } from "@react-navigation/native";
+import ButtonComponent from "../../components/button/Button";
+import IUser from "../../model/User";
+import UserService from "../../services/User.service";
+
 import {
   ActionContainer,
   Container,
@@ -17,14 +21,13 @@ import {
   FooterContainer,
   IconNameContainer,
 } from "./styles";
-import ButtonComponent from "../../components/button/Button";
-import IUser from "../../model/User";
-import UserService from "../../services/User.service";
 
 export default function MovementDetail({ route }: { route: any }) {
-  const navigation: any = useNavigation();
-
+  // Get the movement from the route params
   const movement = route.params.movement;
+
+  // Get the navigation object
+  const navigation: any = useNavigation();
 
   const [otherUser, setOtherUser] = useState({} as IUser);
 
@@ -37,6 +40,7 @@ export default function MovementDetail({ route }: { route: any }) {
     }
   });
 
+  // Get the user name to show
   let username;
   if (otherUser.name) {
     username = otherUser.name;
@@ -44,15 +48,13 @@ export default function MovementDetail({ route }: { route: any }) {
     username = movement.name || "Desconocido"; // If the other user is not found, show the name from the movement
   }
 
+  // Get the initials to show
   const initials = username
     .split(" ", 2)
     .map((n: string) => n[0])
     .join("");
 
-  const currencyFormat = (num: number) => {
-    return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-  };
-
+  // Format the date
   let momentObj = moment(movement.createdAt, "YYYY-MM-DDTHH:mm:ss.SSSZ");
   const day = momentObj.format("DD");
   const month = momentObj.format("MMMM");
@@ -60,8 +62,14 @@ export default function MovementDetail({ route }: { route: any }) {
   const time = momentObj.format("hh:mm a");
   const dateFormat = `${day} de ${month} ${year}, ${time}`;
 
+  // Function to go back
   const goBack = () => {
     navigation.goBack();
+  };
+
+  // Format the currency
+  const currencyFormat = (num: number) => {
+    return "₡" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
   };
 
   return (
